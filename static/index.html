@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Download Manager</title>
+  <!-- Socket.IO client library -->
+  <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1, h2 { color: #333; }
+    form { margin-bottom: 20px; }
+    label { font-weight: bold; }
+    input, button { padding: 5px; margin: 5px 0; }
+    .download-item {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    .progress-bar {
+      background-color: #f3f3f3;
+      border: 1px solid #ccc;
+      width: 100%;
+      height: 20px;
+      margin-top: 5px;
+      position: relative;
+    }
+    .progress-bar-fill {
+      background-color: #4caf50;
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+    .quality-btn {
+      margin: 5px;
+      padding: 5px 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Download Manager</h1>
+
+  <!-- Step 1: Form to extract available qualities -->
+  <form id="extractForm">
+    <label for="url">Video URL:</label><br>
+    <input type="text" id="url" name="url" required style="width: 300px;"><br><br>
+    <button type="submit">Extract Qualities</button>
+  </form>
+
+  <!-- Container to display available qualities -->
+  <div id="qualitiesContainer" style="display:none;">
+    <h2>Available Qualities</h2>
+    <div id="qualities"></div>
+  </div>
+
+  <h2>Downloads</h2>
+  <div id="downloads"></div>
+
+  <script>
+    // Connect to the Socket.IO server (assuming same origin)
+    const socket = io();
+
+    // Listen for download-related events.
+    socket.on("download_added", (data) => {
+      console.log("Download added:", data);
+      addDownloadToUI(data);
+    });
+
+    socket.on("download_deleted", (data) => {
+      console.log("Download deleted:", data);
+      removeDownloadFromUI(data.id);
+    });
+
+    // Listen for progress updates.
+    socket.on("progress_update", (data) => {
+      console.log("Progress update:", data);
+      if (data.status == "completed") {
+        console.log("completed", data)
+        window.location.href=encodeURI(data.file);
+      }
+      updateProgressInUI(data);
+    });
+
+    // Step 1: Handle extraction of video qualities.
+    document.getElementById("extractForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const url = document.getElementById("url").value;
+      try {
+        const response = await fetch("/api/video/info", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ url: url })
+        });
+        const result = await response.json();
+        console.log("Extract result:", result);
+        displayQualities(result.formats);
+      } catch (error) {
+        console.error("Error extracting qualities:", error);
+      }
+    });
+
+    // Display the available qualities as buttons.
+    function displayQualities(qualities) {
+      const container = document.getElementById("qualitiesContainer");
+      const qualitiesDiv = document.getElementById("qualities");
+      qualitiesDiv.innerHTML = "";
+      qualities.video.forEach(q => {
+        const btn = document.createElement("button");
+        btn.className = "quality-btn";
+        btn.innerText = `${q.display} (${q.format})`;
+        btn.addEventListener("click", async function() {
+          // Build the download request data with the selected quality.
+          const downloadData = {
+            url: document.getElementById("url").value,
+            category: "video",
+            quality: q.quality,
+            format: q.format,
+          };
+          try {
+            const res = await fetch("/api/video/add", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(downloadData)
+            });
+            const result = await res.json();
+            console.log("Download request response:", result);
+          } catch (error) {
+            console.error("Error adding download:", error);
+          }
+        });
+        qualitiesDiv.appendChild(btn);
+      });
+      qualities.audio.forEach(q => {
+        const btn = document.createElement("button");
+        btn.className = "quality-btn";
+        btn.innerText = `${q.display} (${q.format})`;
+        btn.addEventListener("click", async function() {
+          // Build the download request data with the selected quality.
+          const downloadData = {
+            url: document.getElementById("url").value,
+            category: "audio",
+            quality: q.quality,
+            format: q.format,
+          };
+          try {
+            const res = await fetch("/api/video/add", {
+              method: "POST",
+              headers: {"Content-Type": "application/json"},
+              body: JSON.stringify(downloadData)
+            });
+            const result = await res.json();
+            console.log("Download request response:", result);
+          } catch (error) {
+            console.error("Error adding download:", error);
+          }
+        });
+        qualitiesDiv.appendChild(btn);
+      });
+      container.style.display = "block";
+    }
+
+    // Functions to update the downloads UI.
+    function renderDownloads(downloads) {
+      const container = document.getElementById("downloads");
+      container.innerHTML = "";
+      downloads.forEach(download => {
+        container.prepend(createDownloadElement(download));
+      });
+    }
+
+    function createDownloadElement(download) {
+      const div = document.createElement("div");
+      div.className = "download-item";
+      div.id = `download-${download.id}`;
+      div.innerHTML = `
+        <strong>ID:</strong> ${download.id}<br>
+        <strong>URL:</strong> ${download.url}<br>
+        <strong>Status:</strong> <span id="status-${download.id}">${download.status}</span><br>
+        <strong>Quality:</strong> ${download.quality}<br>
+        <strong>Format:</strong> ${download.format}<br>
+        <div id="progress-${download.id}">Progress: Not started</div>
+        ${getActionButton(download)}
+      `;
+      return div;
+    }
+  
+    function getActionButton(download) {
+      if (download.status === "queued" || download.status === "running") {
+        return `<button class="cancel-btn" onclick="cancelDownload('${download.id}', '${download.task_id}')">Cancel</button>`;
+      } else if (download.status === "finished" || download.status === "error") {
+        return `<button class="delete-btn" onclick="deleteDownload('${download.id}')">Delete</button>`;
+      }
+      return "";
+    }
+
+    async function cancelDownload(downloadId, taskId) {
+      if (!confirm(`Are you sure you want to cancel download ${downloadId}?`)) {
+        return;
+      }
+      try {
+        const response = await fetch("/api/video/cancel", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ download_id: downloadId, task_id: taskId }),
+        });
+        const result = await response.json();
+        console.log("Cancel response:", result);
+  
+        if (result.status === "ok") {
+          document.getElementById(`status-${downloadId}`).innerText = "canceled";
+          updateDownloadUI(downloadId, "canceled");
+        } else {
+          alert(`Failed to cancel: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("Error canceling download:", error);
+      }
+    }
+
+    async function deleteDownload(downloadId) {
+      if (!confirm(`Are you sure you want to delete download ${downloadId}?`)) {
+        return;
+      }
+      try {
+        const response = await fetch("/api/video/delete", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: [downloadId] }),
+        });
+        const result = await response.json();
+        console.log("Delete response:", result);
+  
+        if (result.status === "ok") {
+          removeDownloadFromUI(downloadId);
+        } else {
+          alert(`Failed to delete: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("Error deleting download:", error);
+      }
+    }
+
+    function updateDownloadUI(downloadId, newStatus) {
+      const downloadElement = document.getElementById(`download-${downloadId}`);
+      if (downloadElement) {
+        document.getElementById(`status-${downloadId}`).innerText = newStatus;
+        downloadElement.innerHTML += `<button class="delete-btn" onclick="deleteDownload('${downloadId}')">Delete</button>`;
+      }
+    }
+
+    function addDownloadToUI(download) {
+      const container = document.getElementById("downloads");
+      const element = createDownloadElement(download);
+      container.appendChild(element);
+    }
+
+    function removeDownloadFromUI(id) {
+      const el = document.getElementById(`download-${id}`);
+      if (el) {
+        el.remove();
+      }
+    }
+
+    // Update progress and status in the UI based on data received.
+    function updateProgressInUI(data) {
+      const progressElem = document.getElementById(`progress-${data.id}`);
+      const statusElem = document.getElementById(`status-${data.id}`);
+      const progressBarFill = document.getElementById(`progress-bar-fill-${data.id}`);
+      if (progressElem) {
+        let progressText = "";
+        if (data.percent) {
+          progressText = `Progress: ${parseFloat(data.percent).toFixed(2)}%`;
+          if (progressBarFill) {
+            progressBarFill.style.width = `${parseFloat(data.percent).toFixed(2)}%`;
+          }
+        }
+        if (data._speed_str) {
+          progressText += ` | Speed: ${data._speed_str}`;
+        }
+        if (data.eta) {
+          progressText += ` | ETA: ${data.eta}`;
+        }
+        if (data._percent_str) {
+          progressText += ` | Percentage: ${data._percent_str}`;
+        }
+        if (data._percent_str) {
+          progressText += ` | Percentage: ${data._percent_str}`;
+        }
+        if (data._default_template) {
+          progressText += `<br> ${data._default_template}`;
+        }
+        progressElem.innerHTML = progressText || "Progress update received";
+      }
+      if (statusElem && data.status) {
+        statusElem.innerHTML = data.status;
+      }
+    }
+
+    // Optionally, fetch download history on page load.
+    async function fetchHistory() {
+      try {
+        const response = await fetch("/api/video/history");
+        const result = await response.json();
+        console.log("History:", result.downloads);
+        renderDownloads(result.downloads);
+      } catch (error) {
+        console.error("Error fetching history:", error);
+      }
+    }
+
+    // Initial load of download history.
+    fetchHistory();
+  </script>
+</body>
+</html>
