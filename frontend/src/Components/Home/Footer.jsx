@@ -26,15 +26,29 @@ const Footer = () => {
 
             {/* Branding & Copyright Section */}
             <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center border-t border-white/20">
-                <a className="flex items-center group">
-                    <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400 transition-all">
-                        Eazy-dl
-                    </span>
+                <a href="/" className="flex items-center">
+                    <img
+                        src="eazy-dl_logo_png.png"
+                        alt="Eazy‑dl Logo"
+                        className="h-10 w-auto"
+                    />
                 </a>
-                <p className="mt-4 md:mt-0 text-sm text-gray-400 hover:text-gray-300 transition-colors">
-                    © {new Date().getFullYear()} Eazy-dl — All rights reserved
-                </p>
+
+                {/* Right side: copyright + privacy */}
+                <div className="mt-4 md:mt-0 flex flex-col items-center md:items-end text-sm text-gray-400 transition-colors">
+                    <span className="hover:text-gray-300">
+                        © {new Date().getFullYear()} Eazy-dl — All rights reserved
+                    </span>
+                    <a
+                        href="/privacy-policy"
+                        className="mt-2 hover:text-gray-300"
+                    >
+                        Privacy Policy
+                    </a>
+                </div>
             </div>
+
+
         </footer>
     );
 };

@@ -51,7 +51,7 @@ const RecentsQueue = ({ onClose }) => {
           animate="visible"
           exit="exit"
           transition={{ duration: 0.3 }}
-          className="fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[80vw] bg-[#2A2536] border-l border-white/10 overflow-auto"
+          className="fixed top-0 right-0 bottom-0 z-50 w-[300px] max-w-[80vw] bg-white/10 backdrop-blur-2xl border-l  border-white/20 shadow-lg overflow-auto"
           style={{
             scrollbarWidth: 'thin',
             scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'

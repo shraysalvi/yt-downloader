@@ -43,11 +43,13 @@ const Header = ({ onRecentClick, recentCount }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-[#05051E] py-3 px-4 z-30 flex justify-between items-center border-b border-white/5">
-      <a className="flex items-center group">
-        <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent group-hover:from-blue-300 group-hover:to-purple-400 transition-all">
-          Eazy-dl
-        </span>
+    <div className="fixed top-0 left-0 right-0 bg-[#05051E] py-4 px-4 z-30 flex justify-between items-center border-b border-white/5">
+      <a href="/" className="flex items-center">
+        <img
+          src="eazy-dl_logo_png.png"
+          alt="Eazy‑dl Logo"
+          className="h-auto sm:w-[10rem] w-[8rem]"
+        />
       </a>
       <div className="flex items-center space-x-2 ml-auto">
         <button
@@ -62,7 +64,10 @@ const Header = ({ onRecentClick, recentCount }) => {
             </span>
           )}
         </button>
-        <button  onClick={handleBookmark} className="text-white hover:bg-white/5 transition-all duration-300 text-sm">
+        <button
+          onClick={handleBookmark}
+          className="text-white hover:bg-white/5 transition-all duration-300 text-sm hidden sm:block"
+        >
           <span className="p-[1px] bg-gradient-to-r from-[#46D8FF] via-[#6B09FF] to-[#F46477] rounded-full inline-block">
             <span className="flex items-center px-3 py-2 bg-[#05051e] rounded-full">
               <IoBookmark className="h-4 w-4 mr-1" />
@@ -72,6 +77,7 @@ const Header = ({ onRecentClick, recentCount }) => {
         </button>
       </div>
     </div>
+
   );
 };
 

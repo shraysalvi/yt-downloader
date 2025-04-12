@@ -37,18 +37,11 @@ const ProgressQueue = () => {
       setQueue(prevQueue => {
         let newQueue = prevQueue.map(item => {
           if (item.id === data.id) {
-            let isAudioPhase = item.isAudioPhase || false;
-
-            if (!isAudioPhase && item.progress > 95 && data._percent < 5) {
-              isAudioPhase = true;
-            }
-
             return {
               ...item,
               progress: data._percent,
               progressDisplay: data._percent_str,
-              status: data.status,
-              isAudioPhase
+              status: data.status
             };
           }
           return item;
@@ -104,6 +97,8 @@ const ProgressQueue = () => {
       setQueue(prevQueue =>
         prevQueue.filter(itm => itm.id !== item.id)
       );
+      // Emit event for download cancellation
+      window.dispatchEvent(new CustomEvent("download_canceled", { detail: { id: item.id } }));
       // Notify that download was cancelled
       toast.error("Download cancelled");
     } catch (error) {
@@ -181,12 +176,8 @@ const ProgressQueue = () => {
                                 ></div>
                               </div>
                               <p className="text-white/60 text-xs mt-1">
-                                {item.isAudioPhase
-                                  ? `Merging Audio... ${item.progressDisplay ? item.progressDisplay.trim() : Math.round(item.progress) + '%'}`
-                                  : `Downloading... ${item.progressDisplay ? item.progressDisplay.trim() : Math.round(item.progress) + '%'}`
-                                }
+                                Downloading... {item.progressDisplay ? item.progressDisplay.trim() : Math.round(item.progress) + '%'}
                               </p>
-
                             </>
                           ) : (
                             <p className="text-white/60 text-xs mt-1">Queued</p>

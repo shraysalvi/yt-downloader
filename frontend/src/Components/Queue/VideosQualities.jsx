@@ -29,9 +29,19 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
       }
     };
 
+    const handleDownloadCanceled = (e) => {
+      if (e.detail.id === downloadId) {
+        setStatus('idle');
+        setDownloadId(null);
+      }
+    };
+
     socket.on('progress_update', handleProgressUpdate);
+    window.addEventListener('download_canceled', handleDownloadCanceled);
+    
     return () => {
       socket.off('progress_update', handleProgressUpdate);
+      window.removeEventListener('download_canceled', handleDownloadCanceled);
     };
   }, [downloadId]);
 
