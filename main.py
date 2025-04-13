@@ -6,7 +6,7 @@ import uvicorn
 from aioredis import Redis
 from app.clients import SOCKET_CLIENT, get_redis
 from app.constants import DOWNLOAD_URL, DOWNLOAD_DIRECTORY
-from app.utils import periodic_cleanup
+from app.utils import periodic_cleanup, periodic_download_cleanup
 from app.video import router as video_router
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -33,6 +33,7 @@ async def lifespan(app: FastAPI):
     app.state.sio = SOCKET_CLIENT
     asyncio.create_task(redis_listener(app.state.redis, app.state.sio))
     asyncio.create_task(periodic_cleanup(app.state.redis))
+    asyncio.create_task(periodic_download_cleanup())
 
     yield  # The app runs here
 

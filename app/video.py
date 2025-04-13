@@ -139,7 +139,7 @@ async def delete_download(
     return {"status": "ok", "deleted": deleted_count}
 
 
-@router.get("/history")
+# @router.get("/history")
 async def history(
         user: str = Depends(get_current_user),
         redis=Depends(get_redis_instance),

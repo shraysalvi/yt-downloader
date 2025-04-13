@@ -1,5 +1,5 @@
 from typing import List, Literal, Optional
-
+from urllib.parse import urlparse, parse_qs
 from pydantic import BaseModel, HttpUrl, field_validator
 
 
@@ -41,6 +41,12 @@ class VideoRequest(BaseModel):
     def validate_youtube_url(cls, v: HttpUrl) -> HttpUrl:
         if 'youtube.com' not in v.host and 'youtu.be' not in v.host:
             raise ValueError('URL must be a YouTube link.')
+
+        parsed_url = urlparse(str(v))
+        query_params = parse_qs(parsed_url.query)
+        if 'list' in query_params:
+            raise ValueError('URL must be a single video link, not a playlist.')
+
         return v
 
 class DownloadRequest(VideoRequest):

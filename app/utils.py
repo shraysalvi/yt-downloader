@@ -4,7 +4,7 @@ import time
 import uuid
 
 from aioredis import Redis
-from app.constants import AUDIO_QUALITIES, REDIS_DOWNLOADS
+from app.constants import AUDIO_QUALITIES, REDIS_DOWNLOADS, TAST_DOWNLOAD_DIR
 from fastapi import Cookie, HTTPException, Request, Response
 from pydantic import HttpUrl
 
@@ -185,4 +185,23 @@ def get_sio_instance(request: Request):
     """
     return request.app.state.sio
 
-# TODO: Auto file delete on 400GB
+async def periodic_download_cleanup():
+    """
+    Periodically cleans up old download records from the file system.
+    Deletes files in the TAST_DOWNLOAD_DIR that are older than 2 hours.
+    """
+    while True:
+        now = time.time()
+        try:
+            for filename in os.listdir(TAST_DOWNLOAD_DIR):
+                file_path = os.path.join(TAST_DOWNLOAD_DIR, filename)
+                if os.path.isfile(file_path):
+                    file_creation_time = os.path.getctime(file_path)
+                    # Check if the file is older than 2 hours (1.5 * 60 * 60 seconds)
+                    if now - file_creation_time > 1.5 * 60 * 60:
+                        os.remove(file_path)
+                        print(f"Deleted old file: {file_path}")
+        except Exception as e:
+            print(f"Error during periodic cleanup: {e}")
+
+        await asyncio.sleep(30 * 60)
