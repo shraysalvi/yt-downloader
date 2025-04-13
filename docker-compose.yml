@@ -17,6 +17,7 @@ services:
     command: sh -c "python main.py"
     stdin_open: true
     tty: true
+    restart: always
 
   celery:
     build:
@@ -34,9 +35,11 @@ services:
     command: sh -c "celery -A app.tasks worker -l info"
     stdin_open: true
     tty: true
+    restart: always
 
   redis:
     image: redis:6.2-alpine
     ports:
       - "6379:6379"
+    restart: always
 
