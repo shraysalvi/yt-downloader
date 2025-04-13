@@ -9,15 +9,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/socket.io': {
-        target: 'http://localhost:8000',
+        target: import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000',
         ws: true,
       },
       '/api': {
-        target: 'http://localhost:8000',
+        target: import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000',
         changeOrigin: true,
       },
       '/download': {
-        target: 'http://localhost:8000',
+        target: import.meta.env.VITE_SOCKET_URL || 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
