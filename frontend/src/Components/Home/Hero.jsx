@@ -5,6 +5,29 @@ import toast from 'react-hot-toast';
 // Moved the regex outside so both handlers can use it
 const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
 
+// Helper function to clean the URL
+function cleanYoutubeUrl(inputUrl) {
+    try {
+        const parsedUrl = new URL(inputUrl);
+        // If it's a pure playlist URL, return error
+        if (parsedUrl.pathname === '/playlist') {
+            return { error: 'Playlist URLs are not supported.' };
+        }
+        // For /watch URLs with extra playlist parameters, remove them
+        if (parsedUrl.pathname === '/watch' && parsedUrl.searchParams.has('list')) {
+            const videoId = parsedUrl.searchParams.get('v');
+            if (videoId && videoId.length >= 11) {
+                // Return only the necessary part
+                return { url: `https://www.youtube.com/watch?v=${videoId.substring(0, 11)}` };
+            }
+        }
+        // Otherwise, return the original URL
+        return { url: inputUrl };
+    } catch (e) {
+        return { error: 'Invalid URL' };
+    }
+}
+
 // Reusable button component
 const DownloadButton = ({ className = '', children, loading = false }) => (
     <motion.button
@@ -33,7 +56,7 @@ const DownloadButton = ({ className = '', children, loading = false }) => (
 const Hero = ({ onUrlUpdate, loading = false }) => {
     const [url, setUrl] = useState("");
 
-    // Helper function to trigger download if URL is valid
+    // Helper function to trigger download if URL is valid and clean the URL if needed
     const triggerDownload = async (inputUrl) => {
         const trimmedUrl = inputUrl.trim();
         if (!trimmedUrl) {
@@ -44,21 +67,25 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
             toast.error('Invalid YouTube URL');
             return;
         }
+        // Clean the URL
+        const { url: cleanUrl, error } = cleanYoutubeUrl(trimmedUrl);
+        if (error) {
+            toast.error(error);
+            return;
+        }
         try {
-            await onUrlUpdate(trimmedUrl);
+            // Call backend only with the clean URL
+            await onUrlUpdate(cleanUrl);
         } catch (error) {
             toast.error('Network error. Please try again.');
         }
     };
     
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         triggerDownload(url);
     }
 
-
-    
     return (
         <section className="px-4">
             <motion.div
@@ -94,7 +121,7 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                                     }, 10);
                                 }}
                                 type="text"
-                                className=" w-full  bg-white/5 text-white py-4 px-6 pr-6 sm:pr-40 rounded-full outline-none border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/50 transition-all"
+                                className="w-full bg-white/5 text-white py-4 px-6 pr-6 sm:pr-40 rounded-full outline-none border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/50 transition-all"
                             />
                             <div className="hidden sm:block absolute right-2 top-1/2 -translate-y-1/2">
                                 <DownloadButton className="px-6 py-3" loading={loading}>
