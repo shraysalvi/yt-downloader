@@ -38,7 +38,7 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
 
     socket.on('progress_update', handleProgressUpdate);
     window.addEventListener('download_canceled', handleDownloadCanceled);
-    
+
     return () => {
       socket.off('progress_update', handleProgressUpdate);
       window.removeEventListener('download_canceled', handleDownloadCanceled);
@@ -48,11 +48,13 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
   const handleDownload = async () => {
     try {
       setStatus('preparing');
+      // Determine category based on format
+      const category = (format.format === 'm4a') ? "audio" : "video";
       const downloadData = {
         url: videoUrl,
         quality: format.quality || format.display,
         format: format.format || format.ext,
-        category: "video"
+        category: category
       };
 
       const response = await addDownload(downloadData);
@@ -67,7 +69,8 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
           resolution: format.resolution,
           quality: format.quality || format.display,
           format: format.format || format.ext,
-          status: "downloading"
+          status: "downloading",
+          category: category
         };
         addDownloadItem(downloadItem);
         window.dispatchEvent(new CustomEvent("download_added", { detail: downloadItem }));
@@ -197,93 +200,94 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
     >
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
         {/* Video Information */}
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
-          <div className="w-full md:w-1/3 relative">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="rounded-xl overflow-hidden shadow-lg"
-            >
-              <img
-                src={thumbnail}
-                alt={title}
-                className="w-full h-full object-cover"
-              />
-              {duration && (
-                <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                  {duration}
-                </div>
-              )}
-            </motion.div>
-          </div>
-          <div className="w-full md:w-2/3">
-            <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 line-clamp-2">
-              {title}
-            </h2>
-            <p className="text-white/70 text-sm line-clamp-2 mb-2">
-              {description}
-            </p>
-          </div>
-        </div>
-
-        <h3 className="text-lg font-medium text-white mb-4">Download video as:</h3>
-
-        {/* Format List */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="space-y-3 max-h-[60vh] overflow-y-auto pr-1"
-            style={{
-              scrollbarWidth: 'thin',
-              scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'
-            }}
-          >
-
-            {visibleFormats.map((format, index) => {
-              const formatLabel = `${format.quality || format.display || ""}p.${format.format || format.ext || ""}`;
-              const formatDetails = `${format.display || ""} ${format.resolution || ""} ${format.filesize || ""}`;
-              return (
-                <div
-                  key={index}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 
-                             bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 
-                             gap-4 backdrop-blur-xl border border-white/10"
-                >
-                  <div>
-                    <div className="text-white font-medium flex items-center">
-                      <span>{formatLabel}</span>
-                    </div>
-                    <div className="text-sm text-white/60">
-                      {formatDetails}
-                    </div>
-                  </div>
-                  <DownloadButton format={format} videoUrl={videoUrl} videoData={videoData} />
-                </div>
-              );
-            })}
-
-
-            {allFormats.length > 4 && (
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => setShowAllFormats(!showAllFormats)}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/15 transition-all rounded-xl text-white text-sm flex items-center space-x-2"
-                >
-                  <span>{showAllFormats ? 'Show less' : 'Show more'}</span>
-                  <IoIosArrowDown className={`h-4 w-4 transition-transform duration-300 ${showAllFormats ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {allFormats.length === 0 && (
+        {allFormats.length === 0 ? (
           <div className="text-center text-white/70 py-8">
             No formats available
           </div>
-        )}
+        ) : (<>
+          <div className="flex flex-col md:flex-row gap-6 mb-8">
+            <div className="w-full md:w-1/3 relative">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="rounded-xl overflow-hidden shadow-lg"
+              >
+                <img
+                  src={thumbnail}
+                  alt={title}
+                  className="w-full h-full object-cover"
+                />
+                {duration && (
+                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    {duration}
+                  </div>
+                )}
+              </motion.div>
+            </div>
+            <div className="w-full md:w-2/3">
+              <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 line-clamp-2">
+                {title}
+              </h2>
+              <p className="text-white/70 text-sm line-clamp-2 mb-2">
+                {description}
+              </p>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-medium text-white mb-4">Download video as:</h3>
+
+          {/* Format List */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-3 max-h-[60vh] overflow-y-auto pr-1"
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'
+              }}
+            >
+
+              {visibleFormats.map((format, index) => {
+                const formatLabel = `${format.quality || format.display || ""}p.${format.format || format.ext || ""}`;
+                const formatDetails = `${format.display || ""} ${format.resolution || ""} ${format.filesize || ""}`;
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 
+                             bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 
+                             gap-4 backdrop-blur-xl border border-white/10"
+                  >
+                    <div>
+                      <div className="text-white font-medium flex items-center">
+                        <span>{formatLabel}</span>
+                      </div>
+                      <div className="text-sm text-white/60">
+                        {formatDetails}
+                      </div>
+                    </div>
+                    <DownloadButton format={format} videoUrl={videoUrl} videoData={videoData} />
+                  </div>
+                );
+              })}
+
+
+              {allFormats.length > 4 && (
+                <div className="flex justify-center mt-4">
+                  <button
+                    onClick={() => setShowAllFormats(!showAllFormats)}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/15 transition-all rounded-xl text-white text-sm flex items-center space-x-2"
+                  >
+                    <span>{showAllFormats ? 'Show less' : 'Show more'}</span>
+                    <IoIosArrowDown className={`h-4 w-4 transition-transform duration-300 ${showAllFormats ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+        </>)}
       </div>
     </motion.div>
   );

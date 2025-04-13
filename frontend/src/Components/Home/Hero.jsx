@@ -3,12 +3,21 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 // Moved the regex outside so both handlers can use it
-const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+const youtubeRegex = /^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$/;
 
 // Helper function to clean the URL
 function cleanYoutubeUrl(inputUrl) {
     try {
         const parsedUrl = new URL(inputUrl);
+        
+        // Handle shorts URLs: convert to standard watch URL
+        if (parsedUrl.pathname.startsWith('/shorts/')) {
+            const id = parsedUrl.pathname.split('/')[2];
+            if (id) {
+                return { url: `https://www.youtube.com/watch?v=${id}` };
+            }
+        }
+        
         // If it's a pure playlist URL, return error
         if (parsedUrl.pathname === '/playlist') {
             return { error: 'Playlist URLs are not supported.' };
@@ -87,7 +96,7 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
     }
 
     return (
-        <section className="px-4">
+        <section className="px-4 mt-26">
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}

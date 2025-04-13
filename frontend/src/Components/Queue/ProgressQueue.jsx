@@ -32,6 +32,14 @@ const ProgressQueue = () => {
     return () => window.removeEventListener("download_added", handleDownloadAdded);
   }, []);
 
+  // Automatically open queue if any items exist
+  useEffect(() => {
+    if (queue.length > 0) {
+      setIsOpen(true);
+    }
+  }, [queue]);
+
+
   useEffect(() => {
     const handleProgressUpdate = (data) => {
       setQueue(prevQueue => {
@@ -57,18 +65,18 @@ const ProgressQueue = () => {
               minute: 'numeric',
               hour12: true,
             });
-
             setTimeout(() => {
               if (!completedItem.downloaded) {
+                // Use proper extension based on category
+                const ext = completedItem.category === 'audio' ? completedItem.format : 'mp4';
                 const fileName = data.info_dict && data.info_dict.title ?
-                  `${data.info_dict.title}.mp4` : "downloaded_video.mp4";
+                  `${data.info_dict.title}.${ext}` : `downloaded_${completedItem.category}.${ext}`;
                 downloadFile(data.file, fileName);
               }
               removeDownloadItem(data.id);
               addRecentDownload({ ...completedItem, status: "completed", timestamp });
               toast.success('Download completed!');
             }, 0);
-
             newQueue = newQueue.filter(item => item.id !== data.id);
           }
         }

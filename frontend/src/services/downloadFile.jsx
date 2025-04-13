@@ -15,17 +15,16 @@ const prepareDownloadUrl = (url) => {
     }
 };
 
-// Helper: Clean and validate filename
+// Helper: Prepare filename without replacing unsafe characters
 const sanitizeFilename = (name = '', fallback = 'download', ext = 'mp4') => {
-    let safeName = name.trim() || fallback;
-    safeName = decodeURIComponent(safeName).replace(/[\/\?%*:|"<>]/g, '-');
-    if (!safeName.match(/\.(mp4|webm|mkv|avi|mov|flv|wmv)$/i)) {
-        safeName += `.${ext}`;
+    let finalName = name.trim() || fallback;
+    if (!finalName.match(/\.(mp4|webm|mkv|avi|mov|flv|wmv)$/i)) {
+        finalName += `.${ext}`;
     }
-    return safeName;
+    return finalName;
 };
 
-// Main downloader (fast, clean, safe)
+// Main downloader (fast, clean, simple)
 export const downloadFile = async (fileUrl, format = 'mp4', filename = '') => {
   if (!fileUrl) {
     console.warn('⚠️ No file URL provided.');
@@ -48,14 +47,17 @@ export const downloadFile = async (fileUrl, format = 'mp4', filename = '') => {
     let fetchUrl = preparedUrl.startsWith(SOCKET_URL)
       ? preparedUrl.replace(SOCKET_URL, '')
       : preparedUrl;
-    // Remove extra encoding if not necessary
+    // Instead of using encodeURI (which leaves '#' unencoded),
+    // encode each path segment using encodeURIComponent.
+    fetchUrl = fetchUrl
+      .split('/')
+      .map((segment, index) => index === 0 ? segment : encodeURIComponent(segment))
+      .join('/');
+
     const res = await fetch(fetchUrl, { mode: 'cors' });
     if (!res.ok) throw new Error(`❌ Failed to fetch file. Status: ${res.status}`);
 
-    // Use blob() directly instead of arrayBuffer conversion
     const blob = await res.blob();
-    const contentType = res.headers.get('content-type') || 'application/octet-stream';
-    // Create blob URL
     const blobUrl = URL.createObjectURL(blob);
 
     const nameFromUrl = fileUrl.split('/').pop()?.split('?')[0];
@@ -72,7 +74,6 @@ export const downloadFile = async (fileUrl, format = 'mp4', filename = '') => {
     URL.revokeObjectURL(blobUrl);
   } catch (err) {
     console.error('❌ Download failed:', err);
-    // Fallback in case of error
     window.open(preparedUrl, '_blank');
   } finally {
     inProgressDownloads.delete(preparedUrl);
