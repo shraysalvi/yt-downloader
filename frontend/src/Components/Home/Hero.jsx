@@ -2,6 +2,8 @@ import { motion } from 'framer-motion'
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 
+// Moved the regex outside so both handlers can use it
+const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
 
 // Reusable button component
 const DownloadButton = ({ className = '', children, loading = false }) => (
@@ -31,30 +33,32 @@ const DownloadButton = ({ className = '', children, loading = false }) => (
 const Hero = ({ onUrlUpdate, loading = false }) => {
     const [url, setUrl] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const trimmedUrl = url.trim();
-
+    // Helper function to trigger download if URL is valid
+    const triggerDownload = async (inputUrl) => {
+        const trimmedUrl = inputUrl.trim();
         if (!trimmedUrl) {
             toast.error('Please enter a URL');
             return;
         }
-
-        // Validate against a basic YouTube URL regex
-        const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
         if (!youtubeRegex.test(trimmedUrl)) {
             toast.error('Invalid YouTube URL');
             return;
         }
-
         try {
             await onUrlUpdate(trimmedUrl);
         } catch (error) {
-            // Show a network error toast if onUrlUpdate fails.
             toast.error('Network error. Please try again.');
         }
+    };
+    
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        triggerDownload(url);
     }
 
+
+    
     return (
         <section className="px-4">
             <motion.div
@@ -78,6 +82,17 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                                 placeholder="YouTube URL here..."
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
+                                onPaste={(e) => {
+                                    e.preventDefault();
+                                    const pasted = e.clipboardData.getData('text');
+                                    setUrl(pasted);
+                                    // Delay ensures the state is updated
+                                    setTimeout(() => {
+                                        if (youtubeRegex.test(pasted)) {
+                                            triggerDownload(pasted);
+                                        }
+                                    }, 10);
+                                }}
                                 type="text"
                                 className=" w-full  bg-white/5 text-white py-4 px-6 pr-6 sm:pr-40 rounded-full outline-none border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)] focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/50 transition-all"
                             />
@@ -95,7 +110,6 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                     </form>
                 </div>
             </div>
-
         </section>
     )
 }
