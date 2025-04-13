@@ -1,11 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import dotenv from 'dotenv'
-
-dotenv.config() // Loads .env into process.env
-
-const SOCKET_URL = process.env.VITE_SOCKET_URL || 'http://localhost:8000'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -13,15 +8,15 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/socket.io': {
-        target: SOCKET_URL,
+        target: 'http://localhost:8000',
         ws: true,
       },
       '/api': {
-        target: SOCKET_URL,
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
       '/download': {
-        target: SOCKET_URL,
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
