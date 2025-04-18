@@ -1,5 +1,6 @@
 import { io } from "socket.io-client";
 
+const API_URL = import.meta.env.VITE_API_URL;
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 const USE_SSL = import.meta.env.VITE_USE_SSL === 'true';
 
@@ -24,7 +25,7 @@ export default socket;
 // Helper function video info extract karne ke liye
 export const fetchVideoInfo = async (url) => {
     try {
-        const response = await fetch(`${SOCKET_URL}/api/video/info`, {
+        const response = await fetch(`${API_URL}/api/video/info`, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -41,7 +42,7 @@ export const fetchVideoInfo = async (url) => {
 // Helper function download add karne ke liye
 export const addDownload = async (downloadData) => {
     try {
-        const response = await fetch(`${SOCKET_URL}/api/video/add`, {
+        const response = await fetch(`${API_URL}/api/video/add`, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
@@ -58,7 +59,7 @@ export const addDownload = async (downloadData) => {
 // Helper function download cancel karne ke liye
 export const cancelDownload = async (downloadId, taskId) => {
     try {
-        const response = await fetch(`${SOCKET_URL}/api/video/cancel`, {
+        const response = await fetch(`${API_URL}/api/video/cancel`, {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
