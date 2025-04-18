@@ -1,4 +1,5 @@
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL;
+const USE_SSL = import.meta.env.VITE_USE_SSL === 'true';
 
 // O(1) Map for temporary locking
 const inProgressDownloads = new Map();
@@ -8,7 +9,7 @@ const prepareDownloadUrl = (url) => {
     if (!url) return '';
     try {
         const isAbsolute = url.startsWith('http://') || url.startsWith('https://');
-        return isAbsolute ? url : `${SOCKET_URL}${url.startsWith('/') ? url : '/' + url}`;
+        return isAbsolute ? url : `${API_URL}${url.startsWith('/') ? url : '/' + url}`;
     } catch (err) {
         console.error('❌ URL normalization error:', err);
         return url;
@@ -44,8 +45,8 @@ export const downloadFile = async (fileUrl, format = 'mp4', filename = '') => {
   inProgressDownloads.set(preparedUrl, Date.now());
 
   try {
-    let fetchUrl = preparedUrl.startsWith(SOCKET_URL)
-      ? preparedUrl.replace(SOCKET_URL, '')
+    let fetchUrl = preparedUrl.startsWith(API_URL)
+      ? preparedUrl.replace(API_URL, '')
       : preparedUrl;
     // Instead of using encodeURI (which leaves '#' unencoded),
     // encode each path segment using encodeURIComponent.
@@ -54,7 +55,12 @@ export const downloadFile = async (fileUrl, format = 'mp4', filename = '') => {
       .map((segment, index) => index === 0 ? segment : encodeURIComponent(segment))
       .join('/');
 
-    const res = await fetch(fetchUrl, { mode: 'cors' });
+    const res = await fetch(fetchUrl, { 
+      mode: 'cors',
+      headers: {
+        'X-Forwarded-Proto': USE_SSL ? 'https' : 'http'
+      }
+    });
     if (!res.ok) throw new Error(`❌ Failed to fetch file. Status: ${res.status}`);
 
     const blob = await res.blob();

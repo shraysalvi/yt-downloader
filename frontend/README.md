@@ -8,6 +8,8 @@ This is the frontend client for Eazy-dl – a YouTube downloader tool built usin
 - React-based UI with TailwindCSS styling
 - Real-time updates via Socket.IO client
 - ESLint configured for code quality
+- Secure HTTPS/WSS connections in production
+- Environment-based configuration
 
 ## Prerequisites
 
@@ -29,10 +31,22 @@ This is the frontend client for Eazy-dl – a YouTube downloader tool built usin
 2. Create a `.env` file in the `frontend` folder with the following:
 
    ```properties
-   VITE_SOCKET_URL=http://localhost:8000
+   # Development environment (default)
+   VITE_API_URL=http://localhost:5000
+   VITE_SOCKET_URL=ws://localhost:5000
+   VITE_USE_SSL=false
    ```
 
-3. Start the development server:
+3. For production, create a `.env.production` file:
+
+   ```properties
+   # Production environment
+   VITE_API_URL=https://api.yourdomain.com
+   VITE_SOCKET_URL=wss://api.yourdomain.com
+   VITE_USE_SSL=true
+   ```
+
+4. Start the development server:
 
    ```sh
    npm run dev
@@ -65,6 +79,21 @@ or
 ```sh
 yarn preview
 ```
+
+## Environment Configuration
+
+The application supports different environments through environment variables:
+
+- **Development** (default):
+  - Uses HTTP/WS connections
+  - Connects to localhost:5000
+  - No SSL verification
+
+- **Production**:
+  - Uses HTTPS/WSS connections
+  - Connects to your production domain
+  - SSL verification enabled
+  - Proper secure headers
 
 ## Linting
 
