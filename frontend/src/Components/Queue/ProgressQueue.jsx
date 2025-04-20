@@ -124,7 +124,7 @@ const ProgressQueue = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="bg-violet-600 text-white px-4 py-3 rounded-full shadow-lg flex items-center space-x-2"
+              className="bg-violet-600 text-white px-4 py-3 rounded-full shadow-black/80 shadow-sm flex items-center space-x-2"
             >
               <HiMiniBars3BottomLeft className="h-5 w-5" />
               <span>Download Queue ({queue.length})</span>
@@ -136,7 +136,7 @@ const ProgressQueue = () => {
                 initial={{ opacity: 0, y: 20, height: 0 }}
                 animate={{ opacity: 1, y: 0, height: 'auto' }}
                 exit={{ opacity: 0, y: 20, height: 0 }}
-                className="bg-[#2A2536] border border-white/10 rounded-lg shadow-lg overflow-hidden w-80"
+                className="bg-[#2A2536] border border-white/10 rounded-lg shadow-xl shadow-black/80 overflow-hidden w-80"
                 style={{
                   scrollbarWidth: 'thin',
                   scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'

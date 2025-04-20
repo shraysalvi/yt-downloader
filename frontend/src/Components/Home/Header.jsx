@@ -28,7 +28,7 @@ const Header = ({ onRecentClick, recentCount }) => {
             <p>Tap menu ⋮ then "Add to Home Screen"</p>
           )}
         </div>,
-        { duration: 5000 }
+        { duration: 3000 }
       );
     } else if (window.sidebar && window.sidebar.addPanel) {
       // Firefox (legacy support)
@@ -43,12 +43,13 @@ const Header = ({ onRecentClick, recentCount }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-[#05051E] py-4 px-4 z-30 flex justify-between items-center border-b border-white/5">
+    <div  className="fixed top-0 left-0 right-0 bg-[#05051E] py-4 px-4 z-30 flex justify-between items-center border-b border-white/5">
       <a href="/" className="flex items-center">
-        <img
-          src="eazy-dl_logo_png.png"
+        <img 
+          src="eazy-dl_SVG_transparent_bg2.svg"
           alt="Eazy‑dl Logo"
           className="h-auto sm:w-[10rem] w-[8rem]"
+          onContextMenu={(e) => e.preventDefault()}
         />
       </a>
       <div className="flex items-center space-x-2 ml-auto">

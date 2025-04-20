@@ -1,0 +1,38 @@
+User-agent: *
+Allow: /
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+
+# WordPress specific paths to disallow
+Disallow: /blog/wp-admin/
+Disallow: /blog/wp-includes/
+Disallow: /blog/wp-content/plugins/
+Disallow: /blog/wp-content/themes/
+Disallow: /blog/wp-content/upgrade/
+Disallow: /blog/wp-content/backup-db/
+Disallow: /blog/wp-content/cache/
+Disallow: /blog/wp-content/uploads/wpo-plugins-tables-list.json
+Disallow: /blog/*.php$
+Disallow: /blog/*?*
+Disallow: /blog/*?
+Allow: /blog/wp-admin/admin-ajax.php
+
+# Common file types to disallow
+Disallow: /*.sql$
+Disallow: /*.sql.gz$
+Disallow: /*.log$
+Disallow: /*.zip$
+Disallow: /*.tar$
+Disallow: /*.tar.gz$
+Disallow: /*.bak$
+Disallow: /*.swp$
+Disallow: /*.DS_Store$
+
+# Temporary and development files
+Disallow: /temp/
+Disallow: /test/
+Disallow: /dev/
+
+# Sitemaps
+Sitemap: https://eazy-dl.com/sitemap.xml
+Sitemap: https://eazy-dl.com/blog/sitemap_index.xml

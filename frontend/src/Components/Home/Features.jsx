@@ -15,7 +15,7 @@ const Features = () => {
                     }}
                 >
                     <div className="absolute top-0 right-0 w-2/3 h-full opacity-10 pointer-events-none"
-                        style={{ background: "radial-gradient(circle, rgba(112,71,235,0.4) 0%, transparent 70%)" }}></div>
+                        ></div>
 
                     <div className=" z-10 p-10 flex flex-col md:flex-row items-center">
                         <div className="w-full md:w-2/3 pr-0 md:pr-8">

@@ -1,16 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Header, Hero, Features, HowDownload, ChooseUs, DownloadOptions, Faq, Footer } from './Components/Home';
-import ProgressQueue from './Components/Queue/ProgressQueue';
-import RecentsQueue from './Components/Queue/RecentsQueue';
-import VideoQualities from './Components/Queue/VideosQualities';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { Home, About, Contact, Privacy } from "./Pages";
 import { getRecentDownloads } from './services/storageServices';
-import { Toaster } from 'react-hot-toast';
+import { Footer, Header } from "./Components/Home";
+import RecentsQueue from "./Components/Queue/RecentsQueue";
+import ProgressQueue from "./Components/Queue/ProgressQueue";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
-  const [videoUrl, setVideoUrl] = useState("");
-  const [showRecentsQueue, setShowRecentsQueue] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [recentCount, setRecentCount] = useState(0);
+  const [showRecentsQueue, setShowRecentsQueue] = useState(false);
 
   const handleToggleRecent = () => {
     // Only open recents if there are items
@@ -20,10 +19,6 @@ const App = () => {
       console.log("No recent downloads available.");
     }
   };
-
-  const handleLoadingChange = useCallback((loading) => {
-    setIsLoading(loading);
-  }, []);
 
   useEffect(() => {
     const updateRecentCount = () => {
@@ -42,43 +37,35 @@ const App = () => {
 
   return (
     <>
-      {showRecentsQueue && (
-        <RecentsQueue onClose={() => setShowRecentsQueue(false)} />
-      )}
-      <div className="min-h-screen bg-[#05051e] overflow-hidden">
+      <BrowserRouter>
+        {showRecentsQueue && (
+          <RecentsQueue onClose={() => setShowRecentsQueue(false)} />
+        )}
+        <ProgressQueue />
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: 'rgba(255, 255, 255, 0.1)',
+              backdropFilter: 'blur(16px)',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            },
+          }}
+        />
         <Header onRecentClick={handleToggleRecent} recentCount={recentCount} />
-        <div className="z-10 pt-16">
-          <div className="container mx-auto px-4 py-4 sm:py-8">
-            <ProgressQueue />
-            <Hero onUrlUpdate={setVideoUrl} loading={isLoading} />
-            <VideoQualities videoUrl={videoUrl} onLoadingChange={handleLoadingChange} />
-            <section className="sm:mt-40 mt-30 sm:mb-20 px-4 mx-auto max-w-6xl space-y-24">
-              <Features />
-              <HowDownload />
-              <ChooseUs />
-              <DownloadOptions />
-              <Faq />
-            </section>
-          </div>
-          <Footer />
-        </div>
-      </div>
-
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 3000,
-          style: {
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(16px)',
-            color: '#fff',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          },
-        }}
-      />
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/about-us' element={<About />} />
+          <Route path='/contact-us' element={<Contact />} />
+          <Route path='/privacy-policy' element={<Privacy />} />
+        </Routes>
+        <Footer />
+      </BrowserRouter>
     </>
-  );
-};
+  )
+}
 
 export default App;
