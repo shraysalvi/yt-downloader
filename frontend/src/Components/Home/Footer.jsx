@@ -14,7 +14,7 @@ const Footer = () => {
                         href="https://youtube.com/@Eazy-dl"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-gray-800 hover:bg-pink-600 transition-all duration-300 group"
+                        className="flex items-center gap-x-2 px-4 py-2 rounded-full bg-gray-800 hover:bg-red-600 transition-all duration-300 group"
                     >
                         <FaYoutube className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
                         <span className="text-gray-300 group-hover:text-white font-medium transition-colors">
