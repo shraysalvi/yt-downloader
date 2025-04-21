@@ -1,7 +1,4 @@
-import { FaFacebookF } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
 import { FaYoutube } from "react-icons/fa";
-import { FaLinkedinIn } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -45,9 +42,9 @@ const Footer = () => {
                             About us
                         </Link>
                         <span>|</span>
-                        <Link to="/blog" className="hover:text-gray-300">
+                        <a href="/blog" className="hover:text-gray-300">
                             Blog
-                        </Link>
+                        </a>
                         <span>|</span>
                         <Link to="/privacy-policy" className="hover:text-gray-300">
                             Privacy Policy

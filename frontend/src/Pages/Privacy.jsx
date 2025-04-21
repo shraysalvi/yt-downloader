@@ -11,7 +11,7 @@ const Privacy = () => {
                     <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">Privacy Policy</h1>
                     <div className="h-1 w-24 bg-gradient-to-r from-purple-500 to-pink-500 mb-2"></div>
                 </div>
-                    <p className="text-base text-white/70 mb-12">Last updated April 20, 2025</p>
+                <p className="text-base text-white/70 mb-12">Last updated April 20, 2025</p>
 
                 {/* Intro */}
                 <div className="mb-16">
@@ -19,10 +19,19 @@ const Privacy = () => {
                         This Privacy Notice for Eazy‑dl ("we," "us," or "our"), describes how and why we might access, collect, store, use, and/or share ("process") your personal information when you use our services ("Services"), including when you:
                     </p>
                     <ul className="space-y-4 mb-8 text-white/70">
-                        <li className="flex items-start">
+                        <li className="flex items-start text-white/70">
                             <span className="text-purple-400 mr-2">•</span>
-                            Visit our website at <a href="https://eazy-dl.com" className="underline text-white hover:text-opacity-80 transition-all ml-1">https://eazy-dl.com</a>, or any website of ours that links to this Privacy Notice
+                            <span>
+                                Visit our website at
+                                <a
+                                    href="https://eazy-dl.com"
+                                    className="underline text-white hover:text-opacity-80 transition-all ml-1 whitespace-nowrap"
+                                >
+                                    https://eazy-dl.com
+                                </a>, or any website of ours that links to this Privacy Notice
+                            </span>
                         </li>
+
                         <li className="flex items-start">
                             <span className="text-purple-400 mr-2">•</span>
                             Use Eazy‑dl. Eazy‑dl is a free, fast, and reliable YouTube video downloader created with simplicity in mind. We understand the frustration of complex interfaces, annoying ads, and unnecessary signups that plague most video downloading tools.
@@ -89,15 +98,15 @@ const Privacy = () => {
                         <h3 className="text-2xl font-semibold mb-6 text-white">1. What information do we collect?</h3>
                         <div className="space-y-6 text-white/70">
                             <p>
-                                <strong className="text-white">Personal information you disclose to us</strong><br/>
+                                <strong className="text-white">Personal information you disclose to us</strong><br />
                                 We collect personal information that you voluntarily provide to us when you express interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.
                             </p>
                             <p>
-                                <strong className="text-white">Sensitive Information</strong><br/>
+                                <strong className="text-white">Sensitive Information</strong><br />
                                 We do not process sensitive information.
                             </p>
                             <p>
-                                <strong className="text-white">Information automatically collected</strong><br/>
+                                <strong className="text-white">Information automatically collected</strong><br />
                                 Some information — such as your IP address and browser/device characteristics — is collected automatically when you visit our Services. This information helps maintain security and operation of our Services, and for internal analytics.
                             </p>
                         </div>
