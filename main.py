@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import socketio
 import uvicorn
 from aioredis import Redis
-from app.clients import SOCKET_CLIENT, get_redis
+from app.clients import SOCKET_CLIENT, get_redis, close_redis_pool
 from app.constants import DOWNLOAD_URL, DOWNLOAD_DIRECTORY
 from app.utils import periodic_cleanup, periodic_download_cleanup
 from app.video import router as video_router
@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
 
     yield  # The app runs here
 
-    await app.state.redis.close()
+    await close_redis_pool()
 
 
 app = FastAPI(
@@ -117,15 +117,27 @@ async def global_exception_handler(request, exc):
     )
 
 async def redis_listener(redis_client: Redis, sio: socketio.AsyncServer):
-    pubsub = redis_client.pubsub()
-    await pubsub.subscribe("download_progress", "download_complete")
-    async for message in pubsub.listen():
-        if message["type"] == "message":
-            try:
-                data = json.loads(message["data"])
-                await sio.emit("progress_update", data)
-            except Exception as e:
-                print(f"Progress update error: {e}")
+    """
+    Listens for Redis pub/sub messages and forwards them to Socket.IO clients.
+    Implements reconnection logic for better reliability.
+    """
+    while True:
+        try:
+            pubsub = redis_client.pubsub()
+            await pubsub.subscribe("download_progress", "download_complete")
+            
+            async for message in pubsub.listen():
+                if message["type"] == "message":
+                    try:
+                        data = json.loads(message["data"])
+                        await sio.emit("progress_update", data)
+                    except Exception as e:
+                        print(f"Progress update error: {e}")
+                        
+        except Exception as e:
+            print(f"Redis listener error: {e}")
+            await asyncio.sleep(3)
+            continue
 
 
 if __name__ == "__main__":
