@@ -24,7 +24,8 @@ async def extract_video_info(url: str):
     def sync_extract():
         with yt_dlp.YoutubeDL({
             "quiet": True, "no_color": True,
-            "skip_download": True, "no_warnings": True
+            "skip_download": True, "no_warnings": True,
+            "cookiefile": "config/cookie.txt",
         }) as ytdlp:
             return ytdlp.extract_info(url, download=False)
     return await asyncio.to_thread(sync_extract)
