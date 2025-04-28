@@ -55,6 +55,7 @@ def download_video(self, download_id, url, quality, format, user, category):
     opts.update({
         "quiet": True,
         "no_color": True,
+        "cookiefile": "config/cookie.txt",
         "paths": {"home": TAST_DOWNLOAD_DIR, "temp": TAST_DOWNLOAD_DIR + "/tmp"},
         "outtmpl": {
             "default": "%(title)s - %(format_id)s.%(ext)s",
