@@ -3,7 +3,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 // Moved the regex outside so both handlers can use it
-const youtubeRegex = /^(https?\:\/\/)?((www\.|m\.)?youtube\.com|youtu\.?be)\/.+$/;
+const youtubeRegex = /^(https?:\/\/)?((www\.|m\.)?youtube\.com|youtu\.?be)\/.+$/;
 
 // Helper function to clean the URL
 function cleanYoutubeUrl(inputUrl) {
