@@ -157,7 +157,7 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
   // Auto-scroll to video info box when videoData is set
   useEffect(() => {
     if (videoData && infoBoxRef.current) {
-      const y = infoBoxRef.current.getBoundingClientRect().top + window.pageYOffset - 80; // 80px offset
+      const y = infoBoxRef.current.getBoundingClientRect().top + window.pageYOffset - 112; // 80px header + 32px extra space
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   }, [videoData]);
