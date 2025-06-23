@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosArrowDown } from "react-icons/io";
 import { fetchVideoInfo, addDownload } from '../../Socket/Utils';
@@ -133,6 +133,7 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
   const [videoData, setVideoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showAllFormats, setShowAllFormats] = useState(false);
+  const infoBoxRef = useRef(null);
 
   useEffect(() => {
     const loadVideoData = async () => {
@@ -152,6 +153,13 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
       loadVideoData();
     }
   }, [videoUrl, onLoadingChange]);
+
+  // Auto-scroll to video info box when videoData is set
+  useEffect(() => {
+    if (videoData && infoBoxRef.current) {
+      infoBoxRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [videoData]);
 
   if (loading) {
     return (
@@ -194,6 +202,7 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
 
   return (
     <motion.div
+      ref={infoBoxRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-3xl mx-auto mt-8 px-4"
