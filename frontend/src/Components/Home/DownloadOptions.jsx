@@ -11,7 +11,7 @@ const DownloadOptions = () => {
                     {/* Option 1 */}
                     <motion.div
                         whileHover={{ y: -5 }}
-                        className="rounded-2xl overflow-hidden relative border border-white/5"
+                        className="rounded-2xl overflow-hidden relative border border-white/5 h-full"
                         style={{
                             background: "linear-gradient(135deg, rgba(22,20,42,0.6) 0%, rgba(35,28,60,0.6) 100%)",
                             boxShadow: "0 10px 25px -10px rgba(0,0,0,0.2)"
@@ -21,7 +21,7 @@ const DownloadOptions = () => {
                         <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none"
                             style={{ background: "radial-gradient(circle at top right, rgba(123,97,255,0.2) 0%, transparent 70%)" }}></div>
 
-                        <div className="p-8 relative z-10 flex flex-col md:flex-row items-center gap-6">
+                        <div className="p-8 relative z-10 flex flex-col md:flex-row items-center justify-center h-full gap-6">
                             <div className="w-full md:w-1/4 flex justify-center">
                                 <div className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
                                     style={{ background: "linear-gradient(135deg, rgba(70,216,255,0.15) 0%, rgba(70,100,255,0.15) 100%)" }}>
@@ -34,7 +34,7 @@ const DownloadOptions = () => {
                             <div className="w-full md:w-3/4 text-center md:text-left">
                                 <h3 className="text-xl font-semibold text-white mb-3">YouTube Video Downloader</h3>
                                 <p className="text-white/70">
-                                    Grab your favorite full-length videos in resolutions ranging from 360p to 1080p. Our tool ensures superb quality every time.
+                                Want to save those longer videos you keep coming back to? Grab your favorite full-length content in crisp resolutions from 360p all the way up to 1080p. Our free YouTube video downloader keeps the original quality intact, so your saved videos look just as good as when you first watched them.
                                 </p>
                             </div>
                         </div>
@@ -43,7 +43,7 @@ const DownloadOptions = () => {
                     {/* Option 2 */}
                     <motion.div
                         whileHover={{ y: -5 }}
-                        className="rounded-2xl overflow-hidden relative border border-white/5"
+                        className="rounded-2xl overflow-hidden relative border border-white/5 h-full"
                         style={{
                             background: "linear-gradient(135deg, rgba(22,20,42,0.6) 0%, rgba(35,28,60,0.6) 100%)",
                             boxShadow: "0 10px 25px -10px rgba(0,0,0,0.2)"
@@ -53,7 +53,7 @@ const DownloadOptions = () => {
                         <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none"
                             style={{ background: "radial-gradient(circle at top right, rgba(123,97,255,0.2) 0%, transparent 70%)" }}></div>
 
-                        <div className="p-8 relative z-10 flex flex-col md:flex-row items-center gap-6">
+                        <div className="p-8 relative z-10 flex flex-col md:flex-row items-center justify-center h-full gap-6">
                             <div className="w-full md:w-1/4 flex justify-center">
                                 <div className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
                                     style={{ background: "linear-gradient(135deg, rgba(107,9,255,0.15) 0%, rgba(187,9,255,0.15) 100%)" }}>
@@ -66,7 +66,7 @@ const DownloadOptions = () => {
                             <div className="w-full md:w-3/4 text-center md:text-left">
                                 <h3 className="text-xl font-semibold text-white mb-3">YouTube Shorts Downloader</h3>
                                 <p className="text-white/70">
-                                    Say goodbye to tricky conversions! Eazy-dl handles YouTube Shorts effortlessly, delivering sharp visuals flawlessly.
+                                    <b>Love those quick, catchy videos?</b> Now you can easily download youtube shorts online and keep your favorites forever. Perfect for saving funny clips, dance moves, or those "how-to" moments you want to watch again later.
                                 </p>
                             </div>
                         </div>
