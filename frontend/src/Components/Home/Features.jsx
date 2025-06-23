@@ -19,13 +19,14 @@ const Features = () => {
 
                     <div className=" z-10 p-10 flex flex-col md:flex-row items-center">
                         <div className="w-full md:w-2/3 pr-0 md:pr-8">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5"> Download YouTube Videos in Stunning HD - It's Easy!</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
+                                Download YouTube Videos in Stunning HD - It's Easy!
+                            </h2>
                             <p className="text-white/80 mb-4 text-lg leading-relaxed">
-                            Why settle for less? Eazy-dl makes downloading YouTube videos fast and hassle-free. Whether it’s tutorials, funny shorts, or presentation videos, our tool keeps the top-notch quality you love without annoying watermarks or limits.
+                                Tired of losing access to your favorite YouTube videos? Our high quality YouTube video downloader makes saving any content you love super easy and lightning-fast. Whether you're hoarding educational tutorials, hilarious shorts, or those professional presentations you need for work, Eazy-dl keeps everything looking exactly like the original—no annoying watermarks or weird restrictions.
                             </p>
                             <p className="text-white/70 text-lg">
-                                Whether you're creating content, saving tutorials for offline viewing, or building a music collection,
-                                our YouTube downloader tool makes it quick and simple.
+                                Ready to never lose a video again? Download YouTube videos in crisp 1080p quality with our simple yet powerful YouTube video downloader 1080p tool. Perfect for content creators who need offline backup libraries, students cramming for exams, or basically anyone who's ever thought "I wish I could save this for later." Just paste, click, and boom—you've got your video ready to watch anytime, anywhere.
                             </p>
                         </div>
                         <div className="w-full md:w-1/3 mt-8 md:mt-0 flex justify-center">
