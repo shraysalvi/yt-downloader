@@ -71,7 +71,7 @@ const ChooseUs = () => {
         <>
             {/* Features Grid Section */}
             <section >
-                <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-14">Here's Why Eazy-dl is Everyone's Favorite YouTube Downloader 🔥 </h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-14">Why Eazy-dl is the Best YouTube Video Downloader in 2025 🔥</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Feature Cards - Using consistent background from FAQ section */}
