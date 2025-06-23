@@ -6,6 +6,7 @@ import { Footer, Header } from "./Components/Home";
 import RecentsQueue from "./Components/Queue/RecentsQueue";
 import ProgressQueue from "./Components/Queue/ProgressQueue";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from './Components/ScrollToTop';
 
 const App = () => {
   const [recentCount, setRecentCount] = useState(0);
@@ -64,6 +65,7 @@ const App = () => {
         </Routes>
         <Footer />
       </BrowserRouter>
+      <ScrollToTop />
     </>
   )
 }
