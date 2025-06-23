@@ -102,8 +102,8 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center mb-20"
             >
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
-                    YouTube Video Downloader - Save Videos & Shorts in HD Quality
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
+                    Free YouTube Video Downloader Online - Save Videos, Shorts in HD Quality
                 </h1>
                 <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto">
                     Download any YouTube video or Shorts with Eazy-dl for free. No signups, no hassle, and no delays. Enjoy HD quality up to 1080p instantly!
