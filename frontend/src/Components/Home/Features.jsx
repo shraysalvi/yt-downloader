@@ -19,7 +19,7 @@ const Features = () => {
 
                     <div className=" z-10 p-10 flex flex-col md:flex-row items-center">
                         <div className="w-full md:w-2/3 pr-0 md:pr-8">
-                            <h2 className="text-3xl md:text-4xl font-bold text-white mb-5">
+                            <h2 className="text-2xl md:text-3xl font-bold text-white mb-5">
                                 Download YouTube Videos in Stunning HD - It's Easy!
                             </h2>
                             <p className="text-white/80 mb-4 text-lg leading-relaxed">
