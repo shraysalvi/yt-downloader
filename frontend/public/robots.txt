@@ -1,21 +1,21 @@
 User-agent: *
-Allow: /
 Disallow: /wp-admin/
 Allow: /wp-admin/admin-ajax.php
 
-# WordPress specific paths to disallow
-Disallow: /blog/wp-admin/
-Disallow: /blog/wp-includes/
+# Allow CSS and JS in wp-includes
+Allow: /wp-includes/js/
+Allow: /wp-includes/css/
+
+# Allow plugins and themes assets
+Allow: /blog/wp-content/plugins/*.css
+Allow: /blog/wp-content/plugins/*.js
+Allow: /blog/wp-content/themes/*.css
+Allow: /blog/wp-content/themes/*.js
+
+# Still disallow sensitive directories
 Disallow: /blog/wp-content/plugins/
 Disallow: /blog/wp-content/themes/
-Disallow: /blog/wp-content/upgrade/
-Disallow: /blog/wp-content/backup-db/
-Disallow: /blog/wp-content/cache/
-Disallow: /blog/wp-content/uploads/wpo-plugins-tables-list.json
-Disallow: /blog/*.php$
-Disallow: /blog/*?*
-Disallow: /blog/*?
-Allow: /blog/wp-admin/admin-ajax.php
+Disallow: /blog/wp-includes/
 
 # Common file types to disallow
 Disallow: /*.sql$
@@ -27,6 +27,11 @@ Disallow: /*.tar.gz$
 Disallow: /*.bak$
 Disallow: /*.swp$
 Disallow: /*.DS_Store$
+
+# Query strings
+Disallow: /blog/*.php$
+Disallow: /blog/*?*
+Disallow: /blog/*?
 
 # Temporary and development files
 Disallow: /temp/
