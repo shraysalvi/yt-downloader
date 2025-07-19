@@ -62,7 +62,7 @@ const DownloadButton = ({ className = '', children, loading = false }) => (
     </motion.button>
 )
 
-const Hero = ({ onUrlUpdate, loading = false }) => {
+const Hero = ({ onUrlUpdate, loading = false, h1 = "Free YouTube Video Downloader Online - Save Videos, Shorts in HD Quality", p = "Download any YouTube video or Shorts with Eazy-dl for free. No signups, no hassle, and no delays. Enjoy HD quality up to 1080p instantly!", buttonLabel = "Download" }) => {
     const [url, setUrl] = useState("");
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -108,11 +108,20 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center mb-20"
             >
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
-                    Free YouTube Video Downloader Online - Save Videos, Shorts in HD Quality
+                <h1
+                  className="text-3xl md:text-4xl font-bold mb-4 tracking-tight leading-tight max-w-3xl mx-auto"
+                  style={{
+                    background: 'linear-gradient(210deg, #BC13FE , #E025BE , #F0459A , #FB697A)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                    {h1}
                 </h1>
                 <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto">
-                    Download any YouTube video or Shorts with Eazy-dl for free. No signups, no hassle, and no delays. Enjoy HD quality up to 1080p instantly!
+                    {p}
                 </p>
             </motion.div>
 
@@ -140,7 +149,7 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                             />
                             <div className="hidden sm:block absolute right-2 top-1/2 -translate-y-1/2">
                                 <DownloadButton className="px-6 py-3" loading={loading}>
-                                    Download
+                                    {buttonLabel}
                                 </DownloadButton>
                             </div>
                         </div>
@@ -155,7 +164,7 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                                 </div>
                             ) : (
                                 <DownloadButton className="w-full py-3" loading={loading}>
-                                    Download
+                                    {buttonLabel}
                                 </DownloadButton>
                             )}
                         </div>
