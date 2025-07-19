@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState, useEffect } from 'react';
-import { Home, About, Contact, Privacy } from "./Pages";
+import { Home, About, Contact, Privacy, Audio } from "./Pages";
 import { getRecentDownloads } from './services/storageServices';
-import { Footer, Header } from "./Components/Home";
+import { Footer, Header } from "./Components/Common";
 import RecentsQueue from "./Components/Queue/RecentsQueue";
 import ProgressQueue from "./Components/Queue/ProgressQueue";
 import { Toaster } from "react-hot-toast";
+import ScrollToTop from './Components/ScrollToTop';
 
 const App = () => {
   const [recentCount, setRecentCount] = useState(0);
@@ -61,9 +62,11 @@ const App = () => {
           <Route path='/about-us' element={<About />} />
           <Route path='/contact-us' element={<Contact />} />
           <Route path='/privacy-policy' element={<Privacy />} />
+          <Route path='/youtube-to-mp3-converter' element={<Audio />} />
         </Routes>
         <Footer />
       </BrowserRouter>
+      <ScrollToTop />
     </>
   )
 }

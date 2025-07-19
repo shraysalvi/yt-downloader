@@ -3,7 +3,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 // Moved the regex outside so both handlers can use it
-const youtubeRegex = /^(https?\:\/\/)?((www\.|m\.)?youtube\.com|youtu\.?be)\/.+$/;
+const youtubeRegex = /^(https?:\/\/)?((www\.|m\.)?youtube\.com|youtu\.?be)\/.+$/;
 
 // Helper function to clean the URL
 function cleanYoutubeUrl(inputUrl) {
@@ -62,8 +62,9 @@ const DownloadButton = ({ className = '', children, loading = false }) => (
     </motion.button>
 )
 
-const Hero = ({ onUrlUpdate, loading = false }) => {
+const Hero = ({ onUrlUpdate, loading = false, h1 = "Free YouTube Video Downloader Online - Save Videos, Shorts in HD Quality", p = "Download any YouTube video or Shorts with Eazy-dl for free. No signups, no hassle, and no delays. Enjoy HD quality up to 1080p instantly!", buttonLabel = "Download" }) => {
     const [url, setUrl] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
 
     // Helper function to trigger download if URL is valid and clean the URL if needed
     const triggerDownload = async (inputUrl) => {
@@ -83,10 +84,12 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
             return;
         }
         try {
-            // Call backend only with the clean URL
+            setIsProcessing(true);
             await onUrlUpdate(cleanUrl);
         } catch (error) {
             toast.error('Network error. Please try again.');
+        } finally {
+            setIsProcessing(false);
         }
     };
     
@@ -95,6 +98,9 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
         triggerDownload(url);
     }
 
+    // Helper to detect mobile
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+
     return (
         <section className="px-4 mt-26">
             <motion.div
@@ -102,11 +108,20 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center mb-20"
             >
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight leading-tight max-w-3xl mx-auto">
-                    YouTube Video Downloader - Save Videos & Shorts in HD Quality
+                <h1
+                  className="text-3xl md:text-4xl font-bold mb-4 tracking-tight leading-tight max-w-3xl mx-auto"
+                  style={{
+                    background: 'linear-gradient(210deg, #BC13FE , #E025BE , #F0459A , #FB697A)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    color: 'transparent',
+                  }}
+                >
+                    {h1}
                 </h1>
                 <p className="text-lg text-white/70 mb-8 max-w-2xl mx-auto">
-                    Download any YouTube video or Shorts with Eazy-dl for free. No signups, no hassle, and no delays. Enjoy HD quality up to 1080p instantly!
+                    {p}
                 </p>
             </motion.div>
 
@@ -122,9 +137,9 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                                     e.preventDefault();
                                     const pasted = e.clipboardData.getData('text');
                                     setUrl(pasted);
-                                    // Delay ensures the state is updated
                                     setTimeout(() => {
                                         if (youtubeRegex.test(pasted)) {
+                                            if (isMobile) setIsProcessing(true);
                                             triggerDownload(pasted);
                                         }
                                     }, 10);
@@ -134,14 +149,24 @@ const Hero = ({ onUrlUpdate, loading = false }) => {
                             />
                             <div className="hidden sm:block absolute right-2 top-1/2 -translate-y-1/2">
                                 <DownloadButton className="px-6 py-3" loading={loading}>
-                                    Download
+                                    {buttonLabel}
                                 </DownloadButton>
                             </div>
                         </div>
                         <div className="sm:hidden mt-3">
-                            <DownloadButton className="w-full py-3" loading={loading}>
-                                Download
-                            </DownloadButton>
+                            {isProcessing || loading ? (
+                                <div className="flex items-center justify-center py-3 text-white">
+                                    <svg className="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Processing...</span>
+                                </div>
+                            ) : (
+                                <DownloadButton className="w-full py-3" loading={loading}>
+                                    {buttonLabel}
+                                </DownloadButton>
+                            )}
                         </div>
                     </form>
                 </div>

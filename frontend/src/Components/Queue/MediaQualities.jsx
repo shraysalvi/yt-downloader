@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoIosArrowDown } from "react-icons/io";
 import { fetchVideoInfo, addDownload } from '../../Socket/Utils';
@@ -6,7 +6,7 @@ import socket from '../../Socket/Utils';
 import { addDownloadItem } from '../../services/storageServices';
 
 
-const DownloadButton = ({ format, videoUrl, videoData }) => {
+const DownloadButton = ({ format, videoUrl, videoData, className }) => {
   const [status, setStatus] = useState('idle');
   const [downloadId, setDownloadId] = useState(null);
 
@@ -92,7 +92,7 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
       whileTap={{ scale: 0.98 }}
       onClick={handleDownload}
       disabled={status !== 'idle' && status !== 'completed' && status !== 'error'}
-      className="py-2.5 rounded-full font-medium transition-all duration-200 w-full sm:w-24 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-white/10 disabled:cursor-not-allowed"
+      className={`py-2.5 rounded-full font-medium transition-all duration-200 w-full sm:w-24 bg-violet-600 text-white hover:bg-violet-500 disabled:bg-white/10 disabled:cursor-not-allowed ${className || ''}`}
     >
       {status === 'preparing' && (
         <div className="flex items-center justify-center">
@@ -129,10 +129,12 @@ const DownloadButton = ({ format, videoUrl, videoData }) => {
   );
 };
 
-const VideoQualities = ({ videoUrl, onLoadingChange }) => {
+// Accept showType prop to filter formats
+const MediaQualities = ({ videoUrl, onLoadingChange, showType }) => {
   const [videoData, setVideoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showAllFormats, setShowAllFormats] = useState(false);
+  const infoBoxRef = useRef(null);
 
   useEffect(() => {
     const loadVideoData = async () => {
@@ -152,6 +154,14 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
       loadVideoData();
     }
   }, [videoUrl, onLoadingChange]);
+
+  // Auto-scroll to video info box when videoData is set
+  useEffect(() => {
+    if (videoData && infoBoxRef.current) {
+      const y = infoBoxRef.current.getBoundingClientRect().top + window.pageYOffset - 112; // 80px header + 32px extra space
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }, [videoData]);
 
   if (loading) {
     return (
@@ -183,24 +193,29 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
 
   // Merge formats if they come separated as audio and video
   const { title, thumbnail, description, duration, formats } = videoData;
-  // Combine video and audio formats then sort in descending order based on normalized quality (numeric)
-  const allFormats = formats
-    ? [...(formats.video || []), ...(formats.audio || [])].sort((a, b) => {
-      // Use Number(a.quality) as quality may be a number or a string.
-      return (Number(b.quality) || 0) - (Number(a.quality) || 0);
-    })
-    : [];
-  const visibleFormats = showAllFormats ? allFormats : allFormats.slice(0, 4);
+  let filteredFormats = [];
+  if (formats) {
+    if (showType === 'video') {
+      filteredFormats = formats.video || [];
+    } else if (showType === 'audio') {
+      filteredFormats = formats.audio || [];
+    } else {
+      filteredFormats = [...(formats.video || []), ...(formats.audio || [])];
+    }
+    filteredFormats = filteredFormats.sort((a, b) => (Number(b.quality) || 0) - (Number(a.quality) || 0));
+  }
+  const visibleFormats = showAllFormats ? filteredFormats : filteredFormats.slice(0, 4);
 
   return (
     <motion.div
+      ref={infoBoxRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-3xl mx-auto mt-8 px-4"
     >
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
         {/* Video Information */}
-        {allFormats.length === 0 ? (
+        {filteredFormats.length === 0 ? (
           <div className="text-center text-white/70 py-8">
             No formats available
           </div>
@@ -234,7 +249,9 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
             </div>
           </div>
 
-          <h3 className="text-lg font-medium text-white mb-4">Download video as:</h3>
+          <h3 className="text-lg font-medium text-white mb-4">
+            {showType === 'audio' ? 'Download audio as:' : 'Download video as:'}
+          </h3>
 
           {/* Format List */}
           <AnimatePresence mode="wait">
@@ -250,7 +267,13 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
             >
 
               {visibleFormats.map((format, index) => {
-                const formatLabel = `${format.quality || format.display || ""}p.${format.format || format.ext || ""}`;
+                // Compose class name: e.g., 1080p.mp4, 130p.m4a
+                const quality = format.quality || format.display || "";
+                const ext = format.format || format.ext || "";
+                let className = `${quality}p.${ext}`.replace(/\s+/g, '').toLowerCase();
+                // Remove any characters that are not valid in class names (optional, for extra safety)
+                className = className.replace(/[^a-z0-9_.-]/g, '');
+                const formatLabel = `${quality}p.${ext}`;
                 const formatDetails = `${format.display || ""} ${format.resolution || ""} ${format.filesize || ""}`;
                 return (
                   <div
@@ -267,13 +290,13 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
                         {formatDetails}
                       </div>
                     </div>
-                    <DownloadButton format={format} videoUrl={videoUrl} videoData={videoData} />
+                    <DownloadButton format={format} videoUrl={videoUrl} videoData={videoData} className={className} />
                   </div>
                 );
               })}
 
 
-              {allFormats.length > 4 && (
+              {filteredFormats.length > 4 && (
                 <div className="flex justify-center mt-4">
                   <button
                     onClick={() => setShowAllFormats(!showAllFormats)}
@@ -293,4 +316,4 @@ const VideoQualities = ({ videoUrl, onLoadingChange }) => {
   );
 };
 
-export default VideoQualities;
+export default MediaQualities;
