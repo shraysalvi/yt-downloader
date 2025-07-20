@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React, { useState, useEffect } from 'react';
-import { Home, About, Contact, Privacy, Audio } from "./Pages";
+import { Home, About, Contact, Privacy, Audio, Thumbnail} from "./Pages";
 import { getRecentDownloads } from './services/storageServices';
 import { Footer, Header } from "./Components/Common";
 import RecentsQueue from "./Components/Queue/RecentsQueue";
@@ -63,6 +63,7 @@ const App = () => {
           <Route path='/contact-us' element={<Contact />} />
           <Route path='/privacy-policy' element={<Privacy />} />
           <Route path='/youtube-to-mp3-converter' element={<Audio />} />
+          <Route path='/youtube-thumbnail-downloader' element={<Thumbnail />} />
         </Routes>
         <Footer />
       </BrowserRouter>

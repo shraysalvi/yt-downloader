@@ -5,8 +5,8 @@ import { fetchVideoInfo, addDownload } from '../../Socket/Utils';
 import socket from '../../Socket/Utils';
 import { addDownloadItem } from '../../services/storageServices';
 
-
-const DownloadButton = ({ format, videoUrl, videoData, className }) => {
+// DownloadButton now accepts a custom downloadHandler
+const DownloadButton = ({ format, videoUrl, videoData, className, downloadHandler }) => {
   const [status, setStatus] = useState('idle');
   const [downloadId, setDownloadId] = useState(null);
 
@@ -15,11 +15,9 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
 
     const handleProgressUpdate = (data) => {
       if (data.id === downloadId) {
-        console.log('Progress update:', data);
         if (data.status === 'downloading') {
           setStatus('downloading');
         } else if (data.status === 'completed') {
-          console.log('Download completed:', data);
           setStatus('completed');
           setTimeout(() => setStatus('idle'), 3000);
         } else if (data.status === 'error') {
@@ -46,9 +44,13 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
   }, [downloadId]);
 
   const handleDownload = async () => {
+    if (downloadHandler) {
+      // For thumbnails or custom logic
+      downloadHandler(format, videoUrl, videoData);
+      return;
+    }
     try {
       setStatus('preparing');
-      // Determine category based on format
       const category = (format.format === 'm4a') ? "audio" : "video";
       const downloadData = {
         url: videoUrl,
@@ -56,10 +58,7 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
         format: format.format || format.ext,
         category: category
       };
-
       const response = await addDownload(downloadData);
-      console.log("Download initiated:", response);
-
       if (response && response.status === "ok") {
         const downloadItem = {
           id: response.download_id,
@@ -80,7 +79,6 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
         setTimeout(() => setStatus('idle'), 3000);
       }
     } catch (error) {
-      console.error("Download error:", error);
       setStatus('error');
       setTimeout(() => setStatus('idle'), 3000);
     }
@@ -103,7 +101,6 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
           <span className="text-white text-xs">Preparing...</span>
         </div>
       )}
-
       {status === 'downloading' && (
         <div className="flex items-center justify-center">
           <svg className="animate-spin h-4 w-4 mr-1" viewBox="0 0 24 24">
@@ -113,15 +110,12 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
           <span className="text-white text-xs">Processing</span>
         </div>
       )}
-
       {status === 'completed' && (
         <span className="text-white text-xs">Downloaded</span>
       )}
-
       {status === 'error' && (
         <span className="text-white text-xs">Failed</span>
       )}
-
       {status === 'idle' && (
         <span className="text-white text-sm">Download</span>
       )}
@@ -129,39 +123,53 @@ const DownloadButton = ({ format, videoUrl, videoData, className }) => {
   );
 };
 
-// Accept showType prop to filter formats
-const MediaQualities = ({ videoUrl, onLoadingChange, showType }) => {
+// MediaQualities is now generic: accepts 'qualities', 'downloadHandler', and 'title' props
+const MediaQualities = ({ videoUrl, onLoadingChange, showType, qualities, downloadHandler, title, displayData: displayDataProp }) => {
   const [videoData, setVideoData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showAllFormats, setShowAllFormats] = useState(false);
   const infoBoxRef = useRef(null);
 
+  // If qualities are provided, use them directly (for thumbnails)
+  // Otherwise, fetch video/audio info as before
   useEffect(() => {
+    if (qualities) return; // skip fetching for thumbnails
     const loadVideoData = async () => {
       setLoading(true);
       if (onLoadingChange) onLoadingChange(true);
-
       const data = await fetchVideoInfo(videoUrl);
-      // Debug: Check response structure
-      console.log("Fetched video data:", data);
       setVideoData(data);
-
       setLoading(false);
       if (onLoadingChange) onLoadingChange(false);
     };
-
-    if (videoUrl.trim()) {
+    if (videoUrl && videoUrl.trim()) {
       loadVideoData();
     }
-  }, [videoUrl, onLoadingChange]);
+  }, [videoUrl, onLoadingChange, qualities]);
 
-  // Auto-scroll to video info box when videoData is set
-  useEffect(() => {
-    if (videoData && infoBoxRef.current) {
-      const y = infoBoxRef.current.getBoundingClientRect().top + window.pageYOffset - 112; // 80px header + 32px extra space
-      window.scrollTo({ top: y, behavior: 'smooth' });
+  // For video/audio, extract formats as before
+  let filteredFormats = [];
+  let displayTitle = title;
+  // Use displayDataProp if provided (for thumbnails), otherwise fallback to videoData
+  let displayData = displayDataProp || videoData;
+  if (qualities) {
+    filteredFormats = qualities;
+    displayTitle = title || 'Download thumbnail as:';
+  } else if (videoData) {
+    const { formats } = videoData;
+    if (formats) {
+      if (showType === 'video') {
+        filteredFormats = formats.video || [];
+      } else if (showType === 'audio') {
+        filteredFormats = formats.audio || [];
+      } else {
+        filteredFormats = [...(formats.video || []), ...(formats.audio || [])];
+      }
+      filteredFormats = filteredFormats.sort((a, b) => (Number(b.quality) || 0) - (Number(a.quality) || 0));
     }
-  }, [videoData]);
+    displayTitle = title || (showType === 'audio' ? 'Download audio as:' : 'Download video as:');
+  }
+  const visibleFormats = showAllFormats ? filteredFormats : filteredFormats.slice(0, 4);
 
   if (loading) {
     return (
@@ -187,24 +195,13 @@ const MediaQualities = ({ videoUrl, onLoadingChange, showType }) => {
     );
   }
 
-  if (!videoData) {
-    return null; // or show a placeholder if no videoUrl is provided
+  if (qualities && (!Array.isArray(qualities) || qualities.length === 0)) {
+    // Show a message if no static qualities are available
+    return <div className="text-center text-white/70 py-8">No formats available</div>;
   }
-
-  // Merge formats if they come separated as audio and video
-  const { title, thumbnail, description, duration, formats } = videoData;
-  let filteredFormats = [];
-  if (formats) {
-    if (showType === 'video') {
-      filteredFormats = formats.video || [];
-    } else if (showType === 'audio') {
-      filteredFormats = formats.audio || [];
-    } else {
-      filteredFormats = [...(formats.video || []), ...(formats.audio || [])];
-    }
-    filteredFormats = filteredFormats.sort((a, b) => (Number(b.quality) || 0) - (Number(a.quality) || 0));
+  if (!qualities && !videoData) {
+    return null;
   }
-  const visibleFormats = showAllFormats ? filteredFormats : filteredFormats.slice(0, 4);
 
   return (
     <motion.div
@@ -214,103 +211,95 @@ const MediaQualities = ({ videoUrl, onLoadingChange, showType }) => {
       className="w-full max-w-3xl mx-auto mt-8 px-4"
     >
       <div className="bg-white/10 backdrop-blur-2xl rounded-2xl p-6 border border-white/20 shadow-lg">
-        {/* Video Information */}
-        {filteredFormats.length === 0 ? (
-          <div className="text-center text-white/70 py-8">
-            No formats available
-          </div>
-        ) : (<>
-          <div className="flex flex-col md:flex-row gap-6 mb-8">
-            <div className="w-full md:w-1/3 relative">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="rounded-xl overflow-hidden shadow-lg"
-              >
-                <img
-                  src={thumbnail}
-                  alt={title}
-                  className="w-full h-full object-cover"
-                />
-                {duration && (
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    {duration}
-                  </div>
-                )}
-              </motion.div>
-            </div>
-            <div className="w-full md:w-2/3">
-              <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 line-clamp-2">
-                {title}
-              </h2>
-              <p className="text-white/70 text-sm line-clamp-2 mb-2">
-                {description}
-              </p>
-            </div>
-          </div>
-
-          <h3 className="text-lg font-medium text-white mb-4">
-            {showType === 'audio' ? 'Download audio as:' : 'Download video as:'}
-          </h3>
-
-          {/* Format List */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-3 max-h-[60vh] overflow-y-auto pr-1"
-              style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'
-              }}
-            >
-
-              {visibleFormats.map((format, index) => {
-                // Compose class name: e.g., 1080p.mp4, 130p.m4a
-                const quality = format.quality || format.display || "";
-                const ext = format.format || format.ext || "";
-                let className = `${quality}p.${ext}`.replace(/\s+/g, '').toLowerCase();
-                // Remove any characters that are not valid in class names (optional, for extra safety)
-                className = className.replace(/[^a-z0-9_.-]/g, '');
-                const formatLabel = `${quality}p.${ext}`;
-                const formatDetails = `${format.display || ""} ${format.resolution || ""} ${format.filesize || ""}`;
-                return (
-                  <div
-                    key={index}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 
-                             bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 
-                             gap-4 backdrop-blur-xl border border-white/10"
-                  >
-                    <div>
-                      <div className="text-white font-medium flex items-center">
-                        <span>{formatLabel}</span>
-                      </div>
-                      <div className="text-sm text-white/60">
-                        {formatDetails}
-                      </div>
+        {/* Header section for video/audio and thumbnail, with null check */}
+        {displayData && displayData.thumbnail && (
+          <>
+            <div className="flex flex-col md:flex-row gap-6 mb-8">
+              <div className="w-full md:w-1/3 relative">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="rounded-xl overflow-hidden shadow-lg"
+                >
+                  <img
+                    src={displayData.thumbnail}
+                    alt={displayData.title || 'thumbnail'}
+                    className="w-full h-full object-cover"
+                  />
+                  {displayData.duration && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                      {displayData.duration}
                     </div>
-                    <DownloadButton format={format} videoUrl={videoUrl} videoData={videoData} className={className} />
+                  )}
+                </motion.div>
+              </div>
+              <div className="w-full md:w-2/3">
+                <h2 className="text-xl md:text-2xl font-semibold text-white mb-4 line-clamp-2">
+                  {displayData.title || ''}
+                </h2>
+                <p className="text-white/70 text-sm line-clamp-2 mb-2">
+                  {displayData.description || ''}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+        <h3 className="text-lg font-medium text-white mb-4">{displayTitle}</h3>
+        <AnimatePresence mode="wait">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="space-y-3 max-h-[60vh] overflow-y-auto pr-1"
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05)'
+            }}
+          >
+            {visibleFormats.map((format, index) => {
+              // Compose class name: e.g., 1080p.mp4, 130p.m4a
+              const quality = format.quality || format.display || format.res || '';
+              const ext = format.format || format.ext || '';
+              let className = `${quality}p.${ext}`.replace(/\s+/g, '').toLowerCase();
+              className = className.replace(/[^a-z0-9_.-]/g, '');
+              const formatLabel = format.label || `${quality}p.${ext}`;
+              const formatDetails = format.res || format.display || '';
+              return (
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 gap-4 backdrop-blur-xl border border-white/10"
+                >
+                  <div>
+                    <div className="text-white font-medium flex items-center">
+                      <span>{formatLabel}</span>
+                    </div>
+                    <div className="text-sm text-white/60">
+                      {formatDetails}
+                    </div>
                   </div>
-                );
-              })}
-
-
-              {filteredFormats.length > 4 && (
-                <div className="flex justify-center mt-4">
-                  <button
-                    onClick={() => setShowAllFormats(!showAllFormats)}
-                    className="px-4 py-2 bg-white/10 hover:bg-white/15 transition-all rounded-xl text-white text-sm flex items-center space-x-2"
-                  >
-                    <span>{showAllFormats ? 'Show less' : 'Show more'}</span>
-                    <IoIosArrowDown className={`h-4 w-4 transition-transform duration-300 ${showAllFormats ? 'rotate-180' : ''}`} />
-                  </button>
+                  <DownloadButton
+                    format={format}
+                    videoUrl={videoUrl}
+                    videoData={displayData}
+                    className={className}
+                    downloadHandler={downloadHandler}
+                  />
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-        </>)}
+              );
+            })}
+            {filteredFormats.length > 4 && (
+              <div className="flex justify-center mt-4">
+                <button
+                  onClick={() => setShowAllFormats(!showAllFormats)}
+                  className="px-4 py-2 bg-white/10 hover:bg-white/15 transition-all rounded-xl text-white text-sm flex items-center space-x-2"
+                >
+                  <span>{showAllFormats ? 'Show less' : 'Show more'}</span>
+                  <IoIosArrowDown className={`h-4 w-4 transition-transform duration-300 ${showAllFormats ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </motion.div>
   );

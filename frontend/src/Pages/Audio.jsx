@@ -5,6 +5,7 @@ import AudioQuality from '../Components/Audio/AudioQuality';
 import AudioFeatures from '../Components/Audio/AudioFeatures';
 import AudioFaq from '../Components/Audio/AudioFaq';
 import MediaQualities from '../Components/Queue/MediaQualities';
+import AudioHowDownload from '../Components/Audio/AudioHowDownload';
 
 const Audio = () => {
     const [audioUrl, setAudioUrl] = useState("");
@@ -31,7 +32,7 @@ const Audio = () => {
                         <section className="sm:mt-40 mt-30 sm:mb-20 px-4 mx-auto max-w-6xl space-y-24">
                             <Features />
                             <AudioQuality />
-                            <AudioSteps />
+                            <AudioHowDownload />
                             <AudioFeatures />
                             <AudioFaq />
                         </section>
