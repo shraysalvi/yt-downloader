@@ -15,6 +15,11 @@ const NAV_LINKS = [
     label: "YouTube to MP3",
     exact: false,
   },
+  {
+    to: "/youtube-thumbnail-downloader",
+    label: "YouTube Thumbnail Downloader",
+    exact: false,
+  },
 ];
 
 const Header = ({ onRecentClick, recentCount }) => {
@@ -80,8 +85,8 @@ const Header = ({ onRecentClick, recentCount }) => {
           onContextMenu={(e) => e.preventDefault()}
         />
       </Link>
-      {/* Centered Nav */}
-      <nav className="hidden sm:flex flex-1 justify-center items-center gap-2">
+      {/* Centered Nav - only on desktop (lg+) */}
+      <nav className="hidden lg:flex flex-1 justify-center items-center gap-2">
         {NAV_LINKS.map((link) => (
           <NavLink
             key={link.to}
@@ -93,22 +98,36 @@ const Header = ({ onRecentClick, recentCount }) => {
           </NavLink>
         ))}
       </nav>
-      {/* Hamburger and Recent for mobile */}
-      <div className="flex sm:hidden items-center gap-2 ml-auto">
+      {/* Right side: Recent, Bookmark, Hamburger */}
+      <div className="flex items-center gap-2 ml-auto">
+        {/* Recent */}
         <button
           onClick={handleRecentClick}
           className="px-3 py-2 rounded-full text-white bg-white/5 hover:bg-white/10 flex items-center gap-1 transition-all duration-300 text-sm"
         >
           <FaRegClock className="h-4 w-4" />
-          <span className="sm:hidden">Recent</span>
+          <span className="hidden lg:inline">Recent</span>
           {recentCount > 0 && (
             <span className="ml-1 bg-violet-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {recentCount}
             </span>
           )}
         </button>
+        {/* Bookmark */}
         <button
-          className="text-white text-2xl p-2 focus:outline-none"
+          onClick={handleBookmark}
+          className="text-white hover:bg-white/5 transition-all duration-300 text-sm flex items-center gap-1"
+        >
+          <span className="p-[1px] bg-gradient-to-r from-[#46D8FF] via-[#6B09FF] to-[#F46477] rounded-full inline-block">
+            <span className="flex items-center px-3 py-2 bg-[#05051e] rounded-full">
+              <IoBookmark className="h-4 w-4 lg:mr-1" />
+              <span className="hidden lg:inline">Save this tool</span>
+            </span>
+          </span>
+        </button>
+        {/* Hamburger - only below desktop (lg) */}
+        <button
+          className="text-white text-2xl p-2 focus:outline-none flex lg:hidden"
           onClick={() => setMobileOpen((v) => !v)}
           aria-label="Open navigation menu"
         >
@@ -150,32 +169,6 @@ const Header = ({ onRecentClick, recentCount }) => {
           </div>
         </div>
       )}
-      {/* Right side buttons (desktop only) */}
-      <div className="hidden sm:flex items-center space-x-2 ml-auto">
-        <button
-          onClick={handleRecentClick}
-          className="px-3 py-2 rounded-full text-white bg-white/5 hover:bg-white/10 flex items-center gap-1 transition-all duration-300 text-sm"
-        >
-          <FaRegClock className="h-4 w-4" />
-          <span>Recent</span>
-          {recentCount > 0 && (
-            <span className="ml-1 bg-violet-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {recentCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={handleBookmark}
-          className="text-white hover:bg-white/5 transition-all duration-300 text-sm hidden sm:block"
-        >
-          <span className="p-[1px] bg-gradient-to-r from-[#46D8FF] via-[#6B09FF] to-[#F46477] rounded-full inline-block">
-            <span className="flex items-center px-3 py-2 bg-[#05051e] rounded-full">
-              <IoBookmark className="h-4 w-4 mr-1" />
-              Save this tool
-            </span>
-          </span>
-        </button>
-      </div>
     </div>
   );
 };
