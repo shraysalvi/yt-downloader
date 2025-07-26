@@ -25,7 +25,7 @@ const Audio = () => {
                             loading={isLoading}
                             h1="Free YouTube to MP3 Converter Online"
                             p="Convert any YouTube video to MP3 with Eazy-dl for free. No signups, no hassle, and no delays. Extract high-quality audio up to 320kbps instantly!"
-                            buttonLabel="Generate"
+                            buttonLabel="Download"
                         />
                         {/* Only pass audio formats to VideoQualities */}
                         <MediaQualities videoUrl={audioUrl} onLoadingChange={handleLoadingChange} showType="audio" />

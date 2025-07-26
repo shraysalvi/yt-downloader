@@ -103,7 +103,7 @@ const Thumbnail = () => {
             loading={isLoading}
             h1="Free YouTube Thumbnail Downloader Online"
             p="Download high-quality YouTube thumbnails in all sizes with Eazy-dl for free. No signups, no hassle, and no delays. Get HD thumbnails up to 1920x1080 instantly!"
-            buttonLabel="Generate"
+            buttonLabel="Download"
           />
           {videoUrl && thumbnailData && (
             <MediaQualities
